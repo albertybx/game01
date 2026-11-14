@@ -6,6 +6,14 @@
 [gamedev-skills/awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills)
 的 77 個遊戲開發 skill，加上一個 `router`。做遊戲相關的工作時，先用 `router` skill 挑出要讀的 skill，讀完再動手。
 
+## 目前的遊戲：Dream Mart《晚安商店》
+
+睡眠習慣養成 × 夜間商店經營的手機網頁遊戲。動手前**先讀**：
+
+1. `AGENTS.md`：跨 AI 工具共用的開發規則（Codex 等其他工具也讀這份）
+2. `docs/GDD.md`：遊戲規格，標「已確定」的不可擅自改
+3. `docs/TASKS.md`：任務板，做完要更新
+
 ## 使用者
 
 - 第一次用 AI 做遊戲，是程式新手。請用**繁體中文**、白話回覆，少用術語；非用不可時順便解釋一句。
