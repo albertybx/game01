@@ -42,7 +42,10 @@ export interface Session {
 export interface ShopState {
   phase: Phase;
   session: Session | null;
-  /** 看過的最晚時間；手機時鐘調回去時不倒退（GDD v0.6）。 */
+  /**
+   * 營業中看過的最晚時間；手機時鐘調回去時不倒退（GDD v0.6）。
+   * 休店時（沒有營業）一律換成手機當下的時間，不受「不倒退」限制（GDD v0.7）。
+   */
   lastSeenAt: number;
   /** 上一場營業的結算，回到 REST 後保留給報表看。 */
   lastReport: SettlementResult | null;
@@ -87,10 +90,13 @@ function settle(state: ShopState): ShopState {
  * 依現在時間把狀態往前推。頁面重開、離線很久都只要呼叫這個；重複呼叫結果相同，不會重複結算。
  */
 export function advance(state: ShopState, nowMs: number): ShopState {
+  // 休店時沒有要保護的營業，直接用手機當下的時間；
+  // 否則時鐘曾被調快又調回，會一直沿用未來時間開店而卡住（GDD v0.7）。
+  if (!state.session) return { ...state, lastSeenAt: nowMs };
+
   const now = clampNow(state, nowMs);
   let s: ShopState = { ...state, lastSeenAt: now };
-  const session = s.session;
-  if (!session) return s;
+  const session = state.session;
 
   if (s.phase === 'PREPARING' && now >= session.preparingEndsAt) {
     s = { ...s, phase: 'OPEN' };

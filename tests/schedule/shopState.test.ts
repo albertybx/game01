@@ -173,3 +173,27 @@ describe('手機時鐘被調回去（GDD v0.6 暫定）', () => {
     expect(s.session!.closingStartedAt).toBe(tp(2026, 11, 13, 9, 0));
   });
 });
+
+describe('手機時鐘曾被調快又調回（GDD v0.7）', () => {
+  const real = tp(2026, 11, 12, 23, 30);
+  const future = tp(2027, 11, 12, 23, 30);
+
+  it('休店時用手機當下的時間，不沿用未來時間', () => {
+    const s = advance(advance(createInitialState(real), future), real);
+    expect(s.phase).toBe('REST');
+    expect(s.lastSeenAt).toBe(real);
+  });
+
+  it('調回後開店，開店時間是現在、準備動畫照常結束，不會卡住', () => {
+    const polluted = advance(createInitialState(real - HOUR), future); // 曾看過明年
+    const s = open(polluted, real, true);
+    expect(s.session!.openedAt).toBe(real);
+    expect(s.session!.reservationAt).toBe(tp(2026, 11, 13, 9, 0));
+    expect(advance(s, real + SCHEDULE_CONFIG.preparingMs).phase).toBe('OPEN');
+  });
+
+  it('營業中仍然不倒退（保護正在營業的那一場）', () => {
+    const s = advance(open(createInitialState(real), real, true), real + HOUR);
+    expect(advance(s, real - HOUR).lastSeenAt).toBe(real + HOUR);
+  });
+});
